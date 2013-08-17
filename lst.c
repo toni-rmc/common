@@ -1,6 +1,23 @@
-/***********************
-   @Author: Toni Romic
-***********************/
+/****
+    * common:  compare files FILE1 and FILE2 line by line, prints out unique lines and common lines.
+    * Copyright (C) 2011  Toni Romic
+    *
+    * This file is part of common.
+    *
+    * common is free software: you can redistribute it and/or modify
+    * it under the terms of the GNU General Public License as published by
+    * the Free Software Foundation, either version 3 of the License, or
+    * (at your option) any later version.
+    *
+    * common is distributed in the hope that it will be useful,
+    * but WITHOUT ANY WARRANTY; without even the implied warranty of
+    * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    * GNU General Public License for more details.
+    *
+    * You should have received a copy of the GNU General Public License
+    * along with common.  If not, see <http://www.gnu.org/licenses/>.
+****/
+
 
 
 
@@ -35,7 +52,8 @@ Nlist *install(char *fname, char *line)
     Nlist *np;
     unsigned hashval;
 
-    if ((np = lookup(fname, line)) == NULL) { /* not found */
+    if ((np = lookup(fname, line)) == NULL) /* not found */
+    {
         np = malloc(sizeof(*np));
         if (np == NULL || (np->filename = strdup_(fname)) == NULL ||
                             (np->line = strdup_(line)) == NULL)
@@ -70,9 +88,11 @@ void uninst(char *fname, char *line)
 
     hashval = hash(fname, line);
     for (np1 = hashtab[hashval], np2 = NULL;
-        np1 != NULL; np2 = np1, np1 = np1->next) {
-        if ((strcmp(line, np1->line) == 0) && (strcmp(fname, np1->filename) == 0)) {
-            if (--np1->lncnt > 0) /* decrement and check lnct */
+        np1 != NULL; np2 = np1, np1 = np1->next)
+    {
+        if ((strcmp(line, np1->line) == 0) && (strcmp(fname, np1->filename) == 0))
+        {
+            if (--np1->lncnt > 0) /* decrement and check line counter */
                 return;
             if (np2 == NULL) /* at the begening */
                 hashtab[hashval] = np1->next;
@@ -90,7 +110,7 @@ void uninst(char *fname, char *line)
 char *strdup_(char *s)
 {
     char *p;
-    p = (char *) malloc(strlen(s) + 1);
+    p = malloc(strlen(s) + 1);
     if (p != NULL)
         strcpy(p, s);
     return p;

@@ -22,14 +22,16 @@
 
 
 
-typedef struct nlist
-{       /* table entry: */
-    int lncnt;            /* line counter */
-    char *filename;       /* file name */
-    char *line;           /* line in file */
-    struct nlist *next;   /* next entry in chain */
-} Nlist;
+#define MAXLINE 10000    /* maximum line size */
 
-Nlist *lookup(char *, char *);
-Nlist *install(char *, char *);
-void uninst(char *, char *);
+#define COLUMN_1 0X01    /* 1st column */
+#define COLUMN_2 0X02    /* 2nd column */
+#define COLUMN_3 0X04    /* 3rd column */
+
+#define NO_C1 COLUMN_1   /* skip 1st column */
+#define NO_C2 COLUMN_2   /* skip 2nd column */
+#define NO_C3 COLUMN_3   /* skip 3rd column */
+#define NO_WARN 0X08     /* don't print warnings */
+#define TRIM  0X80       /* trim end of lines from all blanks */
+
+static const char *program = "common";
