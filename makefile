@@ -36,7 +36,7 @@ dependencies = $(subst .o,.d, $(objects))
 programs := $(BIN_DIR)/common
 
 # file to test
-TEST_FILES := tmp/f1.txt tmp/f2.txt
+TEST_FILES := ../test/f1.txt ../test/f2.txt
 
 all: $(programs)
 	@echo -------------------------------
@@ -54,7 +54,7 @@ endif
 # generate dependency files
 
 $(OUTPUT_DIR)/%.d: %.c
-	$(COMPILE.c) -MM -MF $@ -MP -MT $(addprefix $(OUTPUT_DIR)/, $(subst .c,.o,$<)) $<
+	$(COMPILE.c) -MM -MF $@ -MP -MT $(subst .d,.o,$@) $<
 
 
 # build object files in output directory

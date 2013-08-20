@@ -26,97 +26,100 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <getopt.h>
 #include "defs.h"
 
 void print_help_message(void);
 void print_version(void);
 
+/* Long options: */
+static struct option long_options[] =
+{
+    { .name = "help",             .has_arg = no_argument,       .flag = 0, .val = 'h' },
+    { .name = "version",          .has_arg = no_argument,       .flag = 0, .val = 'v' },
+    { .name = "trim",             .has_arg = no_argument,       .flag = 0, .val = 't' },
+    { .name = "silent",           .has_arg = no_argument,       .flag = 0, .val = 's' },
+    { .name = "column-delimiter", .has_arg = required_argument, .flag = 0, .val = 'd' },
+    { 0, 0, 0, 0 }
+};
+
 char *handle_arguments(int argc, char *argv[], char **f1, char **f2, int *arg_mode)
 {
-    int i = 0; /* index used to move trough arguments */
-    char *c;   /* one character in argument string */
-    void *p;   /* for compiler satisfaction */
-    static char *delimiter = NULL;    /* return this output delimiter, if any */
+    int i, c, indexptr;
 
-    /* number of characters in output delimiter switch */
-    #define OUTPUT_DEL_SWITCH_NAME 17
+    /* Value to return: */
+    static char *delimiter = NULL;
 
-    while (++i < argc)
+    while ((c = getopt_long(argc, argv, "123", long_options, &indexptr)) != -1)
     {
-        /* check for each argument does it start
-           with one, two or without a dash: */
-        if ((*argv[i] == '-') && (*(argv[i]+1) == '-'))
+        switch (c)
         {
-            /* argument starts with '--', it's a multiple character switch */
-            char *swtch = argv[i]+2; /* point to switch name without dashes */
-            if (strcmp("help", swtch) == 0)
-            {
+            case '1':
+                /* Don't print 1st column. */
+                *arg_mode |= NO_C1;
+                break;
+
+            case '2':
+                /* Don't print 2nd column. */
+                *arg_mode |= NO_C2;
+                break;
+
+            case '3':
+                /* Don't print 3rd column. */
+                *arg_mode |= NO_C3;
+                break;
+
+            case 't':
+                /* Trim blanks from an end of lines. */
+                *arg_mode |= TRIM;
+                break;
+
+            case 's':
+                /* Suppress warnings. */
+                *arg_mode |= NO_WARN;
+                opterr = 0;
+                break;
+
+            case 'd':
+                /* Take delimiter argument. */
+                delimiter = optarg;
+                break;
+
+            case 'v':
+                /* Print version and other information and exit. */
+                print_version();
+                break;
+
+            case 'h':
+                /* Print help message and exit. */
                 print_help_message();
-            }
-            else if (strcmp("version", swtch) == 0)
-            {
-                print_version(); /* print version and other information */
-            }
-            else if (strcmp("trim", swtch) == 0)
-            {
-                *arg_mode |= TRIM;  /* trim blanks from the end of lines */
-            }
-            else if (strcmp("no-warn", swtch) == 0)
-            {
-                *arg_mode |= NO_WARN; /* don't print warnings */
-            }
-            else if (strncmp("output-delimiter=", swtch, OUTPUT_DEL_SWITCH_NAME) == 0)
-            {
-                if (!swtch[OUTPUT_DEL_SWITCH_NAME])
-                {
-                    /* switch value not specified */
-                    fprintf(stderr, "%s: empty `--output-delimiter` not allowed\n", program);
-                    exit(0); /* exit the program */
-                }
-                /* skip switch name and '=' and take delimiter value: */
-                delimiter = swtch + OUTPUT_DEL_SWITCH_NAME;
-            }
-            else
-            {
-                /* unknown multiple character switch found */
-                (*arg_mode & NO_WARN) ? :fprintf(stderr, "warning:\tunknown switch --%s\n", swtch);
-            }
-        }
-        else if (*argv[i] == '-')
-        {
-            /* starts with one '-', it's a single character switch: */
-            for (c = ++argv[i]; *c; c++) /* skip '-' in switch name */
-            {
-                switch (*c)
-                {
-                    case '1':              /* don't print 1st column */
-                        *arg_mode |= NO_C1;
-                    break;
-                    case '2':              /* don't print 2nd column */
-                        *arg_mode |= NO_C2;
-                    break;
-                    case '3':              /* don't print 3rd column */
-                        *arg_mode |= NO_C3;
-                    break;
-                    default: /* if unknown switch is found and --no-warn is not set, print a warning message */
-                        (*arg_mode & NO_WARN) ? :fprintf(stderr, "warning:\tunknown switch -%c\n", *c);
-                    break;
-                }
-            } /* end of FOR loop */
-        }
-        else
-        {
-            /* no dash - not a switch, it's a file name:*/
-            /* if f1 not set, set it, else set f2:  */
-            if (*f1 == NULL)
-                *f1 = argv[i];
-            else if (*f2 == NULL)
-                *f2 = argv[i];
-            /* if first two file names specified are
-               set, ignore what might be other file
-               names but keep scanning for switches */
+                break;
+
+            case '?':
+                /* Some error in parsing arguments occurred
+                e.g., missing argument or unknown switch.
+                Do nothing. getopt_long() will print the
+                error on it's own if NO_WARN flag is not set. */
+                break;
+
+            default:
+                /* Something totaly unexpected. */
+                abort();
+                break;
         }
     } /* end of WHILE loop */
+
+    /* Look for non-switch arguments.
+    Two valid file names expected */
+    for (i = optind; i < argc; i++)
+    {
+        if (*f1 == NULL)
+            *f1 = argv[i];
+        else if (*f2 == NULL)
+            *f2 = argv[i];
+        else
+            break;
+    }
 
     return delimiter;
 }
@@ -133,8 +136,8 @@ and column three contains lines common to both files.\n\n\
   -2              suppress column 2 (lines unique to FILE2)\n\
   -3              suppress column 3 (lines that appear in both files)\n\n\
   --trim     trim spaces from the end of the line before comparing\n\
-  --no-warn  don't print out warnings\n\
-  --output-delimiter=STR  separate columns with STR\n\
+  --silent   suppress warnings\n\
+  --column-delimiter[=]<STR>  separate columns with <STR>\n\
       --help     display this help and exit\n\
       --version  output version information and exit\n\n\
 Examples:\n\

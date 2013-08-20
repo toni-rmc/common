@@ -33,8 +33,9 @@
 static int arg_mode = 0; /* argument list mode */
 static char *delimiter;  /* output delimiter */
 
+/* object to store open file information */
 typedef struct openFile
-{       /* object to store open file information */
+{
     FILE *file;              /* pointer to open file */
     char *filename;          /* name of the file */
     int column;              /* column asociated with file */
@@ -57,9 +58,9 @@ int main(int argc, char *argv[])
     {
         /* one or both filenames are not found */
         fprintf(stderr, "%s: missing operand", program);
-        if (f1) fprintf(stderr, " after `%s`", f1);
+        if (f1) fprintf(stderr, " after `%s'", f1);
         fprintf(stderr, "\n");
-        fprintf(stderr, "Try `%s --help` for more information.\n", program);
+        fprintf(stderr, "Try `%s --help' for more information.\n", program);
         return EAGAIN;
     }
     Openfile *fp1 = openf(f1, COLUMN_1);
