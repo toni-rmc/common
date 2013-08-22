@@ -1,0 +1,10 @@
+# object files
+*.o
+
+# files ending with ~ used by some text editors
+*~
+
+# directories
+out/
+bin/
+test/
