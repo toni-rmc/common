@@ -1,10 +1,15 @@
-# object files
-*.o
+# object and dependency files
+*.[od]
 
-# files ending with ~ used by some text editors
+# files ending and starting with ~ used by some text editors
 *~
+~*
 
 # directories
 out/
 bin/
-test/
+test/*
+
+# do not ignore files used for testing
+!/test/file1.txt
+!/test/file2.txt

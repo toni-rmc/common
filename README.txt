@@ -1,4 +1,4 @@
-common is a software much like well known Unix/Linux comm.
+common is a software much like well known Unix/Linux comm. No sorting needed.
 It's usage is the same as comm:
 
 > common FILE1 FILE2

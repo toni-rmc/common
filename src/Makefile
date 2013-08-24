@@ -36,7 +36,7 @@ dependencies = $(subst .o,.d, $(objects))
 programs := $(BIN_DIR)/common
 
 # file to test
-TEST_FILES := ../test/f1.txt ../test/f2.txt
+TEST_FILES := ../test/file1.txt ../test/file2.txt
 
 all: $(programs)
 	@echo -------------------------------
